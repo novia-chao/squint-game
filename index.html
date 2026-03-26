@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Squint — Color Difference Game</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #0f0f11;
+      --surface: #1a1a1e;
+      --border: #2a2a30;
+      --text: #f0f0f4;
+      --muted: #888;
+      --accent: #7c6cfc;
+      --success: #4ade80;
+      --danger: #f87171;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+    }
+
+    header p {
+      color: var(--muted);
+      font-size: 0.875rem;
+      margin-top: 4px;
+    }
+
+    .stats {
+      display: flex;
+      gap: 24px;
+      margin-bottom: 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 28px;
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    #score-value { color: var(--accent); }
+    #best-value  { color: #f9c74f; }
+    #lives-value { color: var(--danger); }
+    #level-value { color: var(--success); }
+
+    /* Timer bar */
+    .timer-wrap {
+      width: 100%;
+      max-width: 500px;
+      margin-bottom: 18px;
+      height: 6px;
+      background: var(--border);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    #timer-bar {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 99px;
+      transition: width 0.1s linear, background 0.5s;
+    }
+
+    /* Grid */
+    #grid {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .tile {
+      border-radius: 10px;
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.1s;
+      border: 2px solid transparent;
+    }
+
+    .tile:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 0 2px rgba(255,255,255,0.15);
+    }
+
+    .tile.correct {
+      animation: pop 0.35s ease forwards;
+      border-color: var(--success);
+    }
+
+    .tile.wrong {
+      animation: shake 0.35s ease forwards;
+      border-color: var(--danger);
+    }
+
+    @keyframes pop {
+      0%   { transform: scale(1); }
+      50%  { transform: scale(1.18); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25%       { transform: translateX(-6px); }
+      75%       { transform: translateX(6px); }
+    }
+
+    /* Overlay */
+    #overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.78);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      backdrop-filter: blur(6px);
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 40px 44px;
+      text-align: center;
+      max-width: 340px;
+      width: 100%;
+    }
+
+    .card h2 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .card .subtitle {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-top: 8px;
+      line-height: 1.5;
+    }
+
+    .card .final-score {
+      font-size: 3.5rem;
+      font-weight: 800;
+      color: var(--accent);
+      margin: 20px 0 4px;
+      letter-spacing: -0.04em;
+    }
+
+    .card .final-label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+    }
+
+    .card .best-line {
+      margin-top: 12px;
+      font-size: 0.9rem;
+      color: #f9c74f;
+    }
+
+    button {
+      margin-top: 28px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 13px 36px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+      width: 100%;
+    }
+
+    button:hover {
+      opacity: 0.88;
+      transform: translateY(-1px);
+    }
+
+    /* Feedback toast */
+    #toast {
+      position: fixed;
+      top: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-80px);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 22px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      z-index: 20;
+      pointer-events: none;
+    }
+
+    #toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    #toast.correct { color: var(--success); }
+    #toast.wrong   { color: var(--danger); }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>squint</h1>
+  <p>Find the tile that's a different colour</p>
+</header>
+
+<div class="stats">
+  <div class="stat">
+    <div class="stat-label">Score</div>
+    <div class="stat-value" id="score-value">0</div>
+  </div>
+  <div class="stat">
+    <div class="stat-label">Best</div>
+    <div class="stat-value" id="best-value">0</div>
+  </div>
+  <div class="stat">
+    <div class="stat-label">Lives</div>
+    <div class="stat-value" id="lives-value">❤️❤️❤️</div>
+  </div>
+  <div class="stat">
+    <div class="stat-label">Level</div>
+    <div class="stat-value" id="level-value">1</div>
+  </div>
+</div>
+
+<div class="timer-wrap">
+  <div id="timer-bar" style="width:100%"></div>
+</div>
+
+<div id="grid"></div>
+
+<div id="overlay">
+  <div class="card" id="card">
+    <h2 id="card-title">squint</h2>
+    <p class="subtitle" id="card-subtitle">Tap the tile that's a slightly different colour.<br>It gets harder as you go.</p>
+    <div class="final-score" id="final-score" style="display:none"></div>
+    <div class="final-label" id="final-label" style="display:none">points</div>
+    <div class="best-line" id="best-line" style="display:none"></div>
+    <button id="btn">Play</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+  // ─── State ───────────────────────────────────────────────────────────────────
+  const state = {
+    score: 0,
+    best: parseInt(localStorage.getItem("squint_best") || "0"),
+    lives: 3,
+    level: 1,
+    answer: -1,
+    locked: false,
+    timerPct: 100,
+    timerInterval: null,
+    timerDuration: 7000,
+  };
+
+  // ─── DOM refs ────────────────────────────────────────────────────────────────
+  const $grid       = document.getElementById("grid");
+  const $overlay    = document.getElementById("overlay");
+  const $btn        = document.getElementById("btn");
+  const $toast      = document.getElementById("toast");
+  const $bar        = document.getElementById("timer-bar");
+  const $cardTitle  = document.getElementById("card-title");
+  const $cardSub    = document.getElementById("card-subtitle");
+
+  const $score      = document.getElementById("score-value");
+  const $best       = document.getElementById("best-value");
+  const $lives      = document.getElementById("lives-value");
+  const $level      = document.getElementById("level-value");
+
+  const $finalScore = document.getElementById("final-score");
+  const $finalLabel = document.getElementById("final-label");
+  const $bestLine   = document.getElementById("best-line");
+
+  // ─── Level config ─────────────────────────────────────────────────────────────
+  function levelConfig(level) {
+    const configs = [
+      { gridSize: 3, delta: 80 },
+      { gridSize: 3, delta: 60 },
+      { gridSize: 4, delta: 50 },
+      { gridSize: 4, delta: 38 },
+      { gridSize: 4, delta: 28 },
+      { gridSize: 5, delta: 22 },
+      { gridSize: 5, delta: 16 },
+      { gridSize: 5, delta: 12 },
+      { gridSize: 6, delta: 9  },
+      { gridSize: 6, delta: 6  },
+    ];
+    return configs[Math.min(level - 1, configs.length - 1)];
+  }
+
+  // ─── Colour helpers ──────────────────────────────────────────────────────────
+  function rand(lo, hi) {
+    return Math.floor(Math.random() * (hi - lo + 1)) + lo;
+  }
+
+  function clamp(v) {
+    return Math.max(0, Math.min(255, v));
+  }
+
+  function toRgb(r, g, b) {
+    return `rgb(${r},${g},${b})`;
+  }
+
+  function generateRound(level) {
+    const cfg = levelConfig(level);
+    const n = cfg.gridSize * cfg.gridSize;
+
+    const base = {
+      r: rand(40, 215),
+      g: rand(40, 215),
+      b: rand(40, 215),
+    };
+
+    const channels = ["r", "g", "b"];
+    const ch = channels[rand(0, 2)];
+    const dir = Math.random() < 0.5 ? 1 : -1;
+
+    const odd = { ...base };
+    odd[ch] = clamp(base[ch] + dir * (Math.floor(cfg.delta * 0.55) + rand(0, Math.floor(cfg.delta * 0.45))));
+
+    const answer = rand(0, n - 1);
+
+    const colors = Array.from({ length: n }, (_, i) =>
+      i === answer
+        ? toRgb(odd.r, odd.g, odd.b)
+        : toRgb(base.r, base.g, base.b)
+    );
+
+    return { colors, answer, gridSize: cfg.gridSize };
+  }
+
+  // ─── Timer ───────────────────────────────────────────────────────────────────
+  function startTimer() {
+    clearInterval(state.timerInterval);
+    state.timerPct = 100;
+    $bar.style.width = "100%";
+    $bar.style.background = "var(--accent)";
+
+    const steps = 100;
+    const stepMs = state.timerDuration / steps;
+    let step = 0;
+
+    state.timerInterval = setInterval(() => {
+      step++;
+      state.timerPct = 100 - (step / steps) * 100;
+      $bar.style.width = state.timerPct + "%";
+
+      if (state.timerPct < 30) {
+        $bar.style.background = "var(--danger)";
+      } else if (state.timerPct < 60) {
+        $bar.style.background = "#f9c74f";
+      } else {
+        $bar.style.background = "var(--accent)";
+      }
+
+      if (step >= steps) {
+        clearInterval(state.timerInterval);
+        onTimeout();
+      }
+    }, stepMs);
+  }
+
+  function stopTimer() {
+    clearInterval(state.timerInterval);
+  }
+
+  function onTimeout() {
+    if (state.locked) return;
+    state.locked = true;
+    loseLife();
+    showToast("Time's up!", "wrong");
+    const tiles = $grid.querySelectorAll(".tile");
+    tiles[state.answer].classList.add("correct");
+    setTimeout(nextRound, 900);
+  }
+
+  // ─── Game logic ───────────────────────────────────────────────────────────────
+  function loseLife() {
+    state.lives = Math.max(0, state.lives - 1);
+    updateStats();
+    if (state.lives === 0) {
+      setTimeout(gameOver, 500);
+    }
+  }
+
+  function gameOver() {
+    stopTimer();
+    if (state.score > state.best) {
+      state.best = state.score;
+      localStorage.setItem("squint_best", state.best);
+    }
+
+    $cardTitle.textContent = "Game Over";
+    $cardSub.textContent = "You ran out of lives.";
+    $finalScore.style.display = "";
+    $finalScore.textContent = String(state.score);
+    $finalLabel.style.display = "";
+    $bestLine.style.display = "";
+    $bestLine.textContent = state.score >= state.best
+      ? "New best score! \uD83C\uDF89"
+      : `Best: ${state.best}`;
+    $btn.textContent = "Play Again";
+    $overlay.style.display = "flex";
+  }
+
+  function startGame() {
+    state.score = 0;
+    state.lives = 3;
+    state.level = 1;
+    state.locked = false;
+    state.timerDuration = 7000;
+    updateStats();
+    $overlay.style.display = "none";
+    nextRound();
+  }
+
+  function nextRound() {
+    if (state.lives <= 0) return;
+    state.locked = false;
+
+    const newLevel = Math.floor(state.score / 5) + 1;
+    if (newLevel !== state.level) {
+      state.level = newLevel;
+      state.timerDuration = Math.max(3000, 7000 - (state.level - 1) * 300);
+      showToast(`Level ${state.level}!`, "correct");
+    }
+
+    const { colors, answer, gridSize } = generateRound(state.level);
+    state.answer = answer;
+
+    renderGrid(colors, gridSize);
+    updateStats();
+    startTimer();
+  }
+
+  function renderGrid(colors, gridSize) {
+    $grid.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+    const tileSize = Math.min(
+      Math.floor((Math.min(window.innerWidth, 500) - 40) / gridSize) - 8,
+      90
+    );
+
+    // Clear grid using safe DOM method
+    while ($grid.firstChild) {
+      $grid.removeChild($grid.firstChild);
+    }
+
+    colors.forEach((color, i) => {
+      const tile = document.createElement("div");
+      tile.className = "tile";
+      tile.style.width = tileSize + "px";
+      tile.style.height = tileSize + "px";
+      tile.style.background = color;
+      tile.addEventListener("click", () => onTileClick(i));
+      $grid.appendChild(tile);
+    });
+  }
+
+  function onTileClick(index) {
+    if (state.locked) return;
+    state.locked = true;
+    stopTimer();
+
+    const tiles = $grid.querySelectorAll(".tile");
+
+    if (index === state.answer) {
+      tiles[index].classList.add("correct");
+      const pct = state.timerPct / 100;
+      const points = Math.max(1, Math.round(pct * state.level * 10));
+      state.score += points;
+      if (state.score > state.best) {
+        state.best = state.score;
+        localStorage.setItem("squint_best", state.best);
+      }
+      showToast(`+${points}`, "correct");
+    } else {
+      tiles[index].classList.add("wrong");
+      tiles[state.answer].classList.add("correct");
+      loseLife();
+      showToast("Wrong!", "wrong");
+    }
+
+    updateStats();
+    setTimeout(nextRound, 850);
+  }
+
+  // ─── UI helpers ──────────────────────────────────────────────────────────────
+  function updateStats() {
+    $score.textContent = String(state.score);
+    $best.textContent  = String(state.best);
+    $level.textContent = String(state.level);
+
+    const hearts = ["", "\u2764\uFE0F", "\u2764\uFE0F\u2764\uFE0F", "\u2764\uFE0F\u2764\uFE0F\u2764\uFE0F"];
+    $lives.textContent = hearts[state.lives] || "\uD83D\uDC80";
+  }
+
+  let toastTimer;
+  function showToast(msg, type) {
+    $toast.textContent = msg;
+    $toast.className = `show ${type}`;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { $toast.className = ""; }, 1200);
+  }
+
+  // ─── Init ────────────────────────────────────────────────────────────────────
+  updateStats();
+  $btn.addEventListener("click", startGame);
+</script>
+</body>
+</html>
