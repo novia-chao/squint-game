@@ -30,11 +30,8 @@
       padding: 24px 16px 48px;
     }
 
-    /* ── Header ── */
-    header {
-      text-align: center;
-      margin-bottom: 28px;
-    }
+    /* ── Header ────────────────────────────────────────────── */
+    header { text-align: center; margin-bottom: 28px; }
 
     .wordmark {
       font-size: 2.4rem;
@@ -48,35 +45,29 @@
 
     header p {
       color: var(--muted);
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       margin-top: 4px;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.06em;
       text-transform: uppercase;
     }
 
-    /* ── Stats bar ── */
+    /* ── Stats ─────────────────────────────────────────────── */
     .stats {
       display: flex;
       gap: 0;
-      margin-bottom: 24px;
+      margin-bottom: 16px;
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 14px;
       overflow: hidden;
     }
 
-    .stat {
-      text-align: center;
-      padding: 12px 20px;
-      position: relative;
-    }
-
+    .stat { text-align: center; padding: 12px 20px; position: relative; }
     .stat + .stat::before {
       content: '';
       position: absolute;
       left: 0; top: 25%; bottom: 25%;
-      width: 1px;
-      background: var(--border);
+      width: 1px; background: var(--border);
     }
 
     .stat-label {
@@ -95,10 +86,33 @@
 
     #score-value { color: var(--accent); }
     #best-value  { color: var(--gold); }
-    #lives-value { font-size: 1rem; margin-top: 4px; }
+    #lives-value { font-size: 1rem; margin-top: 5px; }
     #level-value { color: var(--green); }
 
-    /* ── Timer ── */
+    /* ── Combo badge ───────────────────────────────────────── */
+    #combo-badge {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      background: rgba(249, 199, 79, 0.12);
+      border: 1px solid rgba(249, 199, 79, 0.3);
+      border-radius: 99px;
+      padding: 5px 14px;
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: var(--gold);
+      margin-bottom: 14px;
+      animation: comboPop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    #combo-badge.visible { display: flex; }
+
+    @keyframes comboPop {
+      from { transform: scale(0.6); opacity: 0; }
+      to   { transform: scale(1);   opacity: 1; }
+    }
+
+    /* ── Timer ─────────────────────────────────────────────── */
     .timer-wrap {
       width: 100%;
       max-width: 500px;
@@ -109,17 +123,15 @@
       overflow: hidden;
     }
 
-    #timer-bar {
-      height: 100%;
-      border-radius: 99px;
-      transition: width 0.1s linear, background 0.4s;
-    }
+    #timer-bar { height: 100%; border-radius: 99px; transition: width 0.1s linear, background 0.4s; }
 
-    /* ── Grid ── */
+    /* ── Grid ──────────────────────────────────────────────── */
     #grid {
       display: grid;
       gap: 8px;
       margin-bottom: 24px;
+      /* blur transition — the squint effect */
+      transition: filter 0.3s ease;
     }
 
     .tile {
@@ -149,7 +161,7 @@
       75%       { transform: translateX(7px); }
     }
 
-    /* ── Overlay ── */
+    /* ── Overlay ───────────────────────────────────────────── */
     #overlay {
       position: fixed;
       inset: 0;
@@ -172,58 +184,68 @@
       width: 100%;
     }
 
-    /* squint logo in card */
+    /* ── Start screen ──────────────────────────────────────── */
+    .eye-wrap {
+      margin-bottom: 8px;
+      line-height: 1;
+    }
+
+    .eye-emoji {
+      font-size: 2.6rem;
+      display: inline-block;
+      animation: squint-eye 5s ease-in-out infinite;
+      transform-origin: center 60%;
+    }
+
+    @keyframes squint-eye {
+      0%, 30%, 100% { transform: scaleY(1); }
+      42%            { transform: scaleY(0.08); }  /* squint */
+      54%            { transform: scaleY(1); }
+      62%            { transform: scaleY(0.08); }  /* squint again */
+      72%            { transform: scaleY(1); }
+    }
+
     .card-logo {
-      font-size: 2rem;
+      font-size: 2.2rem;
       font-weight: 900;
       letter-spacing: -0.05em;
       background: linear-gradient(135deg, #a89cfd 0%, #7c6cfc 50%, #5a4de0 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
-      margin-bottom: 2px;
+      margin-bottom: 6px;
     }
 
+    .card .subtitle {
+      color: var(--muted);
+      font-size: 0.875rem;
+      line-height: 1.6;
+    }
+
+    /* Colour swatch demo */
+    .swatch-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      margin: 16px auto 4px;
+    }
+
+    .swatch {
+      width: 26px; height: 26px;
+      border-radius: 6px;
+    }
+
+    .swatch.odd { box-shadow: 0 0 0 2px var(--accent); }
+    .swatch-hint { font-size: 0.68rem; color: var(--muted); letter-spacing: 0.04em; }
+
+    /* ── Game Over card ────────────────────────────────────── */
     .card h2 {
       font-size: 1.6rem;
       font-weight: 800;
       letter-spacing: -0.02em;
     }
 
-    .card .subtitle {
-      color: var(--muted);
-      font-size: 0.875rem;
-      margin-top: 8px;
-      line-height: 1.6;
-    }
-
-    /* How-to colour swatches */
-    .swatch-row {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      margin: 18px auto 4px;
-    }
-
-    .swatch {
-      width: 28px;
-      height: 28px;
-      border-radius: 6px;
-    }
-
-    .swatch.odd {
-      box-shadow: 0 0 0 2px var(--accent);
-    }
-
-    .swatch-hint {
-      font-size: 0.7rem;
-      color: var(--muted);
-      margin-top: 4px;
-      letter-spacing: 0.04em;
-    }
-
-    /* Score display */
     .final-score {
       font-size: 3.8rem;
       font-weight: 900;
@@ -242,22 +264,36 @@
 
     .best-line {
       margin-top: 10px;
-      font-size: 0.88rem;
+      font-size: 0.9rem;
       color: var(--gold);
       font-weight: 600;
     }
 
-    /* Name input */
-    .name-section {
-      margin-top: 20px;
+    .best-line.new-best {
+      animation: newBestPulse 0.6s ease forwards;
+      color: var(--gold);
     }
 
+    @keyframes newBestPulse {
+      0%   { transform: scale(1); }
+      40%  { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+
+    .max-combo-line {
+      margin-top: 6px;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    /* Name input */
+    .name-section { margin-top: 18px; }
     .name-label {
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       text-transform: uppercase;
       letter-spacing: 0.08em;
       color: var(--muted);
-      margin-bottom: 8px;
+      margin-bottom: 7px;
     }
 
     .name-input {
@@ -277,18 +313,15 @@
     .name-input:focus { border-color: var(--accent); }
     .name-input::placeholder { color: var(--muted); }
 
-    /* Buttons */
+    /* ── Buttons ───────────────────────────────────────────── */
     .btn-primary {
-      display: block;
-      width: 100%;
+      display: block; width: 100%;
       margin-top: 20px;
       background: var(--accent);
       color: #fff;
-      border: none;
-      border-radius: 11px;
+      border: none; border-radius: 11px;
       padding: 13px;
-      font-size: 1rem;
-      font-weight: 700;
+      font-size: 1rem; font-weight: 700;
       cursor: pointer;
       transition: opacity 0.15s, transform 0.1s;
       font-family: inherit;
@@ -297,16 +330,14 @@
     .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
 
     .btn-ghost {
-      display: block;
-      width: 100%;
+      display: block; width: 100%;
       margin-top: 10px;
       background: transparent;
       color: var(--muted);
       border: 1px solid var(--border);
       border-radius: 11px;
       padding: 11px;
-      font-size: 0.875rem;
-      font-weight: 500;
+      font-size: 0.875rem; font-weight: 500;
       cursor: pointer;
       transition: color 0.15s, border-color 0.15s;
       font-family: inherit;
@@ -314,48 +345,30 @@
 
     .btn-ghost:hover { color: var(--text); border-color: var(--muted); }
 
-    /* ── Leaderboard card ── */
+    .btn-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    /* ── Leaderboard card ──────────────────────────────────── */
     #view-leaderboard { display: none; }
 
-    .lb-header {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      margin-bottom: 6px;
-    }
+    .lb-header { display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .lb-trophy { font-size: 1.3rem; }
 
-    .lb-trophy { font-size: 1.4rem; }
+    .lb-your-score { font-size: 0.82rem; color: var(--muted); margin-top: 5px; }
+    .lb-your-score span { color: var(--accent); font-weight: 700; }
 
-    .lb-your-score {
-      font-size: 0.82rem;
-      color: var(--muted);
-      margin-top: 4px;
-    }
-
-    .lb-your-score span {
-      color: var(--accent);
-      font-weight: 700;
-    }
-
-    .lb-list {
-      margin-top: 18px;
-      text-align: left;
-    }
+    .lb-list { margin-top: 18px; text-align: left; }
 
     .lb-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 9px 6px;
-      border-radius: 8px;
-      transition: background 0.15s;
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 6px; border-radius: 8px;
     }
 
-    .lb-row + .lb-row {
-      border-top: 1px solid var(--border);
-      border-radius: 0;
-    }
+    .lb-row + .lb-row { border-top: 1px solid var(--border); border-radius: 0; }
 
     .lb-row.you {
       background: rgba(124,108,252,0.12);
@@ -364,40 +377,11 @@
       margin: 2px 0;
     }
 
-    .lb-rank {
-      width: 28px;
-      text-align: center;
-      font-size: 0.85rem;
-      color: var(--muted);
-      flex-shrink: 0;
-    }
-
-    .lb-name {
-      flex: 1;
-      font-size: 0.9rem;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .lb-score {
-      font-weight: 800;
-      font-size: 0.95rem;
-      color: var(--accent);
-      flex-shrink: 0;
-    }
-
-    .lb-empty {
-      color: var(--muted);
-      font-size: 0.9rem;
-      padding: 24px 0;
-    }
-
-    .lb-loading {
-      display: flex;
-      justify-content: center;
-      padding: 24px 0;
-    }
+    .lb-rank { width: 28px; text-align: center; font-size: 0.85rem; color: var(--muted); flex-shrink: 0; }
+    .lb-name { flex: 1; font-size: 0.9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .lb-score { font-weight: 800; font-size: 0.95rem; color: var(--accent); flex-shrink: 0; }
+    .lb-empty { color: var(--muted); font-size: 0.9rem; padding: 24px 0; }
+    .lb-loading { display: flex; justify-content: center; padding: 24px 0; }
 
     .spinner {
       width: 20px; height: 20px;
@@ -409,26 +393,30 @@
 
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ── Toast ── */
+    /* ── Toast ─────────────────────────────────────────────── */
     #toast {
       position: fixed;
-      top: 20px;
-      left: 50%;
+      top: 20px; left: 50%;
       transform: translateX(-50%) translateY(-80px);
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 10px;
       padding: 9px 20px;
-      font-size: 0.88rem;
-      font-weight: 700;
+      font-size: 0.88rem; font-weight: 700;
       transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-      z-index: 20;
-      pointer-events: none;
+      z-index: 20; pointer-events: none;
     }
 
     #toast.show   { transform: translateX(-50%) translateY(0); }
     #toast.correct { color: var(--green); }
     #toast.wrong   { color: var(--red); }
+    #toast.info    { color: var(--accent); }
+
+    /* ── Confetti canvas (injected by JS) ──────────────────── */
+    #confetti-canvas {
+      position: fixed; inset: 0;
+      pointer-events: none; z-index: 30;
+    }
   </style>
 </head>
 <body>
@@ -457,45 +445,57 @@
   </div>
 </div>
 
+<!-- Combo streak badge -->
+<div id="combo-badge">
+  <span>🔥</span>
+  <span id="combo-num">2</span><span>x combo!</span>
+</div>
+
 <div class="timer-wrap">
   <div id="timer-bar" style="width:100%; background: var(--accent)"></div>
 </div>
 
+<!-- The grid blurs as time runs out — you have to squint -->
 <div id="grid"></div>
 
-<!-- ── Overlay ── -->
+<!-- ── Overlay ─────────────────────────────────────────────── -->
 <div id="overlay">
 
-  <!-- Start / Game Over card -->
+  <!-- Start / Game Over view -->
   <div class="card" id="view-main">
-    <!-- Start screen -->
+
+    <!-- START screen -->
     <div id="phase-start">
+      <div class="eye-wrap"><span class="eye-emoji">👁️</span></div>
       <div class="card-logo">squint</div>
-      <p class="subtitle">Find the tile with a slightly different colour.<br>The gap gets smaller as you level up.</p>
-      <!-- Colour swatch demo -->
+      <p class="subtitle">Find the tile with a slightly different colour.<br>The gap gets smaller — and the grid gets <em>blurrier</em> — as you go.</p>
       <div class="swatch-row" id="demo-swatches"></div>
       <p class="swatch-hint">← spot the odd one out</p>
       <button class="btn-primary" id="btn-play">Play</button>
       <button class="btn-ghost" id="btn-view-lb">🏆 Leaderboard</button>
     </div>
 
-    <!-- Game over screen -->
+    <!-- GAME OVER screen -->
     <div id="phase-gameover" style="display:none">
       <h2>Game Over</h2>
-      <p class="subtitle" id="gameover-sub">You ran out of lives.</p>
       <div class="final-score" id="final-score"></div>
       <div class="final-label">points</div>
       <div class="best-line" id="best-line"></div>
+      <div class="max-combo-line" id="max-combo-line"></div>
       <div class="name-section">
         <p class="name-label">Your name for the leaderboard</p>
         <input class="name-input" id="name-input" type="text" placeholder="e.g. eagle-eye" maxlength="20" autocomplete="off" spellcheck="false" />
       </div>
       <button class="btn-primary" id="btn-submit">Submit Score</button>
-      <button class="btn-ghost" id="btn-skip">Skip →</button>
+      <div class="btn-row">
+        <button class="btn-ghost" id="btn-share">Share 👁️</button>
+        <button class="btn-ghost" id="btn-skip">Skip →</button>
+      </div>
     </div>
+
   </div>
 
-  <!-- Leaderboard card -->
+  <!-- Leaderboard view -->
   <div class="card" id="view-leaderboard">
     <div class="lb-header">
       <span class="lb-trophy">🏆</span>
@@ -525,6 +525,8 @@
     timerPct: 100,
     timerInterval: null,
     timerDuration: 7000,
+    combo: 0,
+    maxCombo: 0,
   };
 
   let lastScore = 0;
@@ -534,6 +536,8 @@
   const $grid          = document.getElementById('grid');
   const $bar           = document.getElementById('timer-bar');
   const $toast         = document.getElementById('toast');
+  const $comboBadge    = document.getElementById('combo-badge');
+  const $comboNum      = document.getElementById('combo-num');
 
   const $score         = document.getElementById('score-value');
   const $best          = document.getElementById('best-value');
@@ -547,51 +551,53 @@
 
   const $finalScore    = document.getElementById('final-score');
   const $bestLine      = document.getElementById('best-line');
+  const $maxComboLine  = document.getElementById('max-combo-line');
   const $nameInput     = document.getElementById('name-input');
   const $lbList        = document.getElementById('lb-list');
   const $lbYourScore   = document.getElementById('lb-your-score');
 
-  // ─── Demo swatches on start screen ───────────────────────────────────────────
+  // ─── Demo swatches ────────────────────────────────────────────────────────────
   (function buildDemo() {
     const base = { r: 100, g: 130, b: 200 };
-    const odd  = { r: 130, g: 130, b: 200 };
-    const positions = [0,1,2,3,4,5,6,7,8];
-    const oddIdx = 5;
+    const odd  = { r: 134, g: 130, b: 200 };
     const wrap = document.getElementById('demo-swatches');
-    positions.forEach(i => {
+    for (let i = 0; i < 9; i++) {
       const d = document.createElement('div');
-      d.className = 'swatch' + (i === oddIdx ? ' odd' : '');
-      const c = i === oddIdx ? odd : base;
+      d.className = 'swatch' + (i === 5 ? ' odd' : '');
+      const c = i === 5 ? odd : base;
       d.style.background = `rgb(${c.r},${c.g},${c.b})`;
       wrap.appendChild(d);
-    });
+    }
   })();
 
   // ─── Level config ─────────────────────────────────────────────────────────────
   function levelConfig(level) {
-    const configs = [
-      { gridSize: 3, delta: 80 },
-      { gridSize: 3, delta: 60 },
-      { gridSize: 4, delta: 50 },
-      { gridSize: 4, delta: 38 },
-      { gridSize: 4, delta: 28 },
-      { gridSize: 5, delta: 22 },
-      { gridSize: 5, delta: 16 },
-      { gridSize: 5, delta: 12 },
-      { gridSize: 6, delta: 9 },
-      { gridSize: 6, delta: 6 },
+    const c = [
+      { gridSize:3, delta:80 }, { gridSize:3, delta:60 },
+      { gridSize:4, delta:50 }, { gridSize:4, delta:38 },
+      { gridSize:4, delta:28 }, { gridSize:5, delta:22 },
+      { gridSize:5, delta:16 }, { gridSize:5, delta:12 },
+      { gridSize:6, delta:9  }, { gridSize:6, delta:6  },
     ];
-    return configs[Math.min(level - 1, configs.length - 1)];
+    return c[Math.min(level - 1, c.length - 1)];
+  }
+
+  function levelUpMessage(level) {
+    if (level <= 3) return `Level ${level}! 🎯`;
+    if (level <= 5) return `Level ${level} — eyes open! 👀`;
+    if (level <= 7) return `Level ${level} — squint harder! 👁️`;
+    if (level <= 9) return `Level ${level} — nearly invisible 😬`;
+    return `MAXIMUM SQUINT 🥵`;
   }
 
   // ─── Colour helpers ───────────────────────────────────────────────────────────
-  function rand(lo, hi) { return Math.floor(Math.random() * (hi - lo + 1)) + lo; }
-  function clamp(v)     { return Math.max(0, Math.min(255, v)); }
-  function toRgb(r,g,b) { return `rgb(${r},${g},${b})`; }
+  const rand  = (lo, hi) => Math.floor(Math.random() * (hi - lo + 1)) + lo;
+  const clamp = v => Math.max(0, Math.min(255, v));
+  const toRgb = (r,g,b) => `rgb(${r},${g},${b})`;
 
   function generateRound(level) {
     const cfg = levelConfig(level);
-    const n = cfg.gridSize * cfg.gridSize;
+    const n   = cfg.gridSize * cfg.gridSize;
     const base = { r: rand(40,215), g: rand(40,215), b: rand(40,215) };
     const ch  = ['r','g','b'][rand(0,2)];
     const dir = Math.random() < 0.5 ? 1 : -1;
@@ -604,33 +610,48 @@
     return { colors, answer, gridSize: cfg.gridSize };
   }
 
-  // ─── Timer ────────────────────────────────────────────────────────────────────
+  // ─── Timer (with blur effect) ─────────────────────────────────────────────────
   function startTimer() {
     clearInterval(state.timerInterval);
     state.timerPct = 100;
     $bar.style.width = '100%';
     $bar.style.background = 'var(--accent)';
+    $grid.style.filter = 'blur(0px)';
+
     const steps = 100;
     const stepMs = state.timerDuration / steps;
     let step = 0;
+
     state.timerInterval = setInterval(() => {
       step++;
       state.timerPct = 100 - (step / steps) * 100;
+
+      // Timer bar colour
       $bar.style.width = state.timerPct + '%';
       $bar.style.background = state.timerPct < 30
         ? 'var(--red)'
-        : state.timerPct < 60
-          ? 'var(--gold)'
-          : 'var(--accent)';
+        : state.timerPct < 60 ? 'var(--gold)' : 'var(--accent)';
+
+      // ★ Squint effect — grid blurs as time runs out
+      // Blur starts kicking in at 50% time remaining, maxes at 0%
+      const blurProgress = Math.max(0, (1 - state.timerPct / 100) - 0.5) / 0.5;
+      const blur = blurProgress * 5; // 0 → 5px
+      $grid.style.filter = `blur(${blur.toFixed(2)}px)`;
+
       if (step >= steps) { clearInterval(state.timerInterval); onTimeout(); }
     }, stepMs);
   }
 
-  function stopTimer() { clearInterval(state.timerInterval); }
+  function stopTimer() {
+    clearInterval(state.timerInterval);
+    $grid.style.filter = 'blur(0px)';
+  }
 
   function onTimeout() {
     if (state.locked) return;
     state.locked = true;
+    state.combo = 0;
+    updateComboBadge();
     loseLife();
     showToast("Time's up!", 'wrong');
     $grid.querySelectorAll('.tile')[state.answer].classList.add('correct');
@@ -647,15 +668,19 @@
   function gameOver() {
     stopTimer();
     lastScore = state.score;
-    if (state.score > state.best) {
+    const isNewBest = state.score > 0 && state.score >= state.best;
+    if (isNewBest) {
       state.best = state.score;
       localStorage.setItem('squint_best', state.best);
+      launchConfetti();
     }
 
     $finalScore.textContent = String(state.score);
-    $bestLine.textContent = state.score > 0 && state.score >= state.best
-      ? '🎉 New personal best!'
-      : `Personal best: ${state.best}`;
+    $bestLine.textContent = isNewBest ? '🎉 New personal best!' : `Personal best: ${state.best}`;
+    $bestLine.className = 'best-line' + (isNewBest ? ' new-best' : '');
+    $maxComboLine.textContent = state.maxCombo >= 2
+      ? `Max combo: 🔥 ${state.maxCombo}x`
+      : '';
 
     $phaseStart.style.display    = 'none';
     $phaseGameover.style.display = '';
@@ -672,6 +697,9 @@
     state.level = 1;
     state.locked = false;
     state.timerDuration = 7000;
+    state.combo = 0;
+    state.maxCombo = 0;
+    updateComboBadge();
     updateStats();
     $overlay.style.display = 'none';
     nextRound();
@@ -684,7 +712,7 @@
     if (newLevel !== state.level) {
       state.level = newLevel;
       state.timerDuration = Math.max(3000, 7000 - (state.level - 1) * 300);
-      showToast(`Level ${state.level}!`, 'correct');
+      showToast(levelUpMessage(state.level), 'info');
     }
     const { colors, answer, gridSize } = generateRound(state.level);
     state.answer = answer;
@@ -713,24 +741,115 @@
     if (state.locked) return;
     state.locked = true;
     stopTimer();
+
     const tiles = $grid.querySelectorAll('.tile');
+
     if (index === state.answer) {
       tiles[index].classList.add('correct');
-      const pts = Math.max(1, Math.round((state.timerPct / 100) * state.level * 10));
+      state.combo++;
+      state.maxCombo = Math.max(state.maxCombo, state.combo);
+
+      const mult = Math.min(state.combo, 5);
+      const pts  = Math.max(1, Math.round((state.timerPct / 100) * state.level * 10 * mult));
       state.score += pts;
+
       if (state.score > state.best) {
         state.best = state.score;
         localStorage.setItem('squint_best', state.best);
       }
-      showToast(`+${pts}`, 'correct');
+
+      const label = mult >= 2 ? `+${pts} (${mult}x combo!)` : `+${pts}`;
+      showToast(label, 'correct');
+      updateComboBadge();
     } else {
       tiles[index].classList.add('wrong');
       tiles[state.answer].classList.add('correct');
+      state.combo = 0;
+      updateComboBadge();
       loseLife();
       showToast('Wrong!', 'wrong');
     }
+
     updateStats();
     setTimeout(nextRound, 850);
+  }
+
+  // ─── Combo badge ──────────────────────────────────────────────────────────────
+  function updateComboBadge() {
+    if (state.combo >= 2) {
+      $comboNum.textContent = state.combo;
+      $comboBadge.classList.add('visible');
+      // Re-trigger animation
+      $comboBadge.style.animation = 'none';
+      $comboBadge.offsetHeight; // reflow
+      $comboBadge.style.animation = '';
+    } else {
+      $comboBadge.classList.remove('visible');
+    }
+  }
+
+  // ─── Confetti ─────────────────────────────────────────────────────────────────
+  function launchConfetti() {
+    const canvas = document.createElement('canvas');
+    canvas.id = 'confetti-canvas';
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+    document.body.appendChild(canvas);
+
+    const ctx = canvas.getContext('2d');
+    const colors = ['#7c6cfc','#a89cfd','#f9c74f','#4ade80','#f87171','#fff'];
+    const particles = Array.from({ length: 90 }, () => ({
+      x:    Math.random() * canvas.width,
+      y:    -10 - Math.random() * 40,
+      size: Math.random() * 7 + 4,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      vx:   (Math.random() - 0.5) * 5,
+      vy:   Math.random() * 3 + 2,
+      rot:  Math.random() * Math.PI * 2,
+      rotV: (Math.random() - 0.5) * 0.15,
+      isRect: Math.random() > 0.4,
+    }));
+
+    let frame = 0;
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => {
+        p.x  += p.vx;
+        p.y  += p.vy;
+        p.vy += 0.09;
+        p.rot += p.rotV;
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, 1 - frame / 110);
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot);
+        ctx.fillStyle = p.color;
+        if (p.isRect) {
+          ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.5);
+        } else {
+          ctx.beginPath();
+          ctx.arc(0, 0, p.size / 2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+      });
+      frame++;
+      if (frame < 130) requestAnimationFrame(draw);
+      else canvas.remove();
+    }
+    draw();
+  }
+
+  // ─── Share score ──────────────────────────────────────────────────────────────
+  async function shareScore(score) {
+    const text = `I scored ${score} pts on squint 👁️ — can you beat me?\nhttps://squint-color-game.vercel.app`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: 'squint', text });
+      } else {
+        await navigator.clipboard.writeText(text);
+        showToast('Score copied!', 'correct');
+      }
+    } catch { /* user cancelled */ }
   }
 
   // ─── Leaderboard API ──────────────────────────────────────────────────────────
@@ -741,7 +860,7 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, score }),
       });
-    } catch (e) { /* silently fail — don't block UI */ }
+    } catch { /* silently fail */ }
   }
 
   async function fetchScores() {
@@ -750,9 +869,7 @@
     return res.json();
   }
 
-  function escHtml(s) {
-    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  }
+  const escHtml = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
   function renderLB(scores, yourScore) {
     if (!scores || !scores.length) {
@@ -763,27 +880,22 @@
     $lbList.innerHTML = scores.map((e, i) => {
       const isYou = yourScore !== null && e.score === yourScore;
       return `<div class="lb-row${isYou ? ' you' : ''}">
-        <span class="lb-rank">${medals[i] || (i+1)}</span>
-        <span class="lb-name">${escHtml(e.name)}${isYou ? ' <span style="color:var(--accent);font-size:0.75rem">(you)</span>' : ''}</span>
+        <span class="lb-rank">${medals[i] || (i + 1)}</span>
+        <span class="lb-name">${escHtml(e.name)}${isYou ? ' <span style="color:var(--accent);font-size:.75rem">(you)</span>' : ''}</span>
         <span class="lb-score">${e.score}</span>
       </div>`;
     }).join('');
   }
 
   async function showLeaderboard(yourScore) {
-    $viewMain.style.display  = 'none';
-    $viewLB.style.display    = '';
+    $viewMain.style.display = 'none';
+    $viewLB.style.display   = '';
     $lbList.innerHTML = '<div class="lb-loading"><div class="spinner"></div></div>';
-
-    if (yourScore !== null) {
-      $lbYourScore.innerHTML = `Your score: <span>${yourScore}</span>`;
-    } else {
-      $lbYourScore.textContent = '';
-    }
-
+    $lbYourScore.innerHTML = yourScore !== null
+      ? `Your score: <span>${yourScore}</span>`
+      : '';
     try {
-      const scores = await fetchScores();
-      renderLB(scores, yourScore);
+      renderLB(await fetchScores(), yourScore);
     } catch {
       $lbList.innerHTML = '<p class="lb-empty">Couldn\'t load scores right now.</p>';
     }
@@ -792,9 +904,7 @@
   // ─── Button handlers ──────────────────────────────────────────────────────────
   document.getElementById('btn-play').addEventListener('click', startGame);
 
-  document.getElementById('btn-view-lb').addEventListener('click', () => {
-    showLeaderboard(null);
-  });
+  document.getElementById('btn-view-lb').addEventListener('click', () => showLeaderboard(null));
 
   document.getElementById('btn-submit').addEventListener('click', async () => {
     const name = $nameInput.value.trim() || 'Anonymous';
@@ -802,16 +912,15 @@
     showLeaderboard(lastScore);
   });
 
-  document.getElementById('btn-skip').addEventListener('click', () => {
-    showLeaderboard(lastScore);
-  });
+  document.getElementById('btn-share').addEventListener('click', () => shareScore(lastScore));
+
+  document.getElementById('btn-skip').addEventListener('click', () => showLeaderboard(lastScore));
 
   document.getElementById('btn-play-again').addEventListener('click', () => {
-    $viewLB.style.display    = 'none';
-    $viewMain.style.display  = '';
-    $phaseStart.style.display    = 'none';
-    $phaseGameover.style.display = '';
-    // go straight to game over → play again flow: just start
+    $viewLB.style.display        = 'none';
+    $viewMain.style.display      = '';
+    $phaseGameover.style.display = 'none';
+    $phaseStart.style.display    = '';
     startGame();
   });
 
@@ -822,7 +931,6 @@
     $phaseStart.style.display    = '';
   });
 
-  // Submit on Enter in name field
   $nameInput.addEventListener('keydown', e => {
     if (e.key === 'Enter') document.getElementById('btn-submit').click();
   });
@@ -841,7 +949,7 @@
     $toast.textContent = msg;
     $toast.className = `show ${type}`;
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => { $toast.className = ''; }, 1200);
+    toastTimer = setTimeout(() => { $toast.className = ''; }, 1400);
   }
 
   // ─── Init ─────────────────────────────────────────────────────────────────────
