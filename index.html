@@ -3,23 +3,20 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Squint — Color Difference Game</title>
+  <title>squint — can you see the difference?</title>
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg: #0f0f11;
-      --surface: #1a1a1e;
-      --border: #2a2a30;
-      --text: #f0f0f4;
-      --muted: #888;
-      --accent: #7c6cfc;
-      --success: #4ade80;
-      --danger: #f87171;
+      --bg:      #0c0c0f;
+      --surface: #16161a;
+      --border:  #252530;
+      --text:    #eeeef4;
+      --muted:   #6b6b80;
+      --accent:  #7c6cfc;
+      --gold:    #f9c74f;
+      --green:   #4ade80;
+      --red:     #f87171;
     }
 
     body {
@@ -30,64 +27,83 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 24px 16px;
+      padding: 24px 16px 48px;
     }
 
+    /* ── Header ── */
     header {
       text-align: center;
       margin-bottom: 28px;
     }
 
-    header h1 {
-      font-size: 2rem;
-      font-weight: 700;
-      letter-spacing: -0.03em;
+    .wordmark {
+      font-size: 2.4rem;
+      font-weight: 900;
+      letter-spacing: -0.05em;
+      background: linear-gradient(135deg, #a89cfd 0%, #7c6cfc 50%, #5a4de0 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
     header p {
       color: var(--muted);
-      font-size: 0.875rem;
+      font-size: 0.8rem;
       margin-top: 4px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
     }
 
+    /* ── Stats bar ── */
     .stats {
       display: flex;
-      gap: 24px;
+      gap: 0;
       margin-bottom: 24px;
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 14px;
-      padding: 14px 28px;
+      overflow: hidden;
     }
 
     .stat {
       text-align: center;
+      padding: 12px 20px;
+      position: relative;
+    }
+
+    .stat + .stat::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 25%; bottom: 25%;
+      width: 1px;
+      background: var(--border);
     }
 
     .stat-label {
-      font-size: 0.7rem;
+      font-size: 0.65rem;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.1em;
       color: var(--muted);
     }
 
     .stat-value {
-      font-size: 1.5rem;
-      font-weight: 700;
+      font-size: 1.4rem;
+      font-weight: 800;
       margin-top: 2px;
+      letter-spacing: -0.02em;
     }
 
     #score-value { color: var(--accent); }
-    #best-value  { color: #f9c74f; }
-    #lives-value { color: var(--danger); }
-    #level-value { color: var(--success); }
+    #best-value  { color: var(--gold); }
+    #lives-value { font-size: 1rem; margin-top: 4px; }
+    #level-value { color: var(--green); }
 
-    /* Timer bar */
+    /* ── Timer ── */
     .timer-wrap {
       width: 100%;
       max-width: 500px;
       margin-bottom: 18px;
-      height: 6px;
+      height: 5px;
       background: var(--border);
       border-radius: 99px;
       overflow: hidden;
@@ -95,12 +111,11 @@
 
     #timer-bar {
       height: 100%;
-      background: var(--accent);
       border-radius: 99px;
-      transition: width 0.1s linear, background 0.5s;
+      transition: width 0.1s linear, background 0.4s;
     }
 
-    /* Grid */
+    /* ── Grid ── */
     #grid {
       display: grid;
       gap: 8px;
@@ -115,137 +130,312 @@
     }
 
     .tile:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 0 2px rgba(255,255,255,0.15);
+      transform: scale(1.06);
+      box-shadow: 0 0 0 2px rgba(255,255,255,0.12);
     }
 
-    .tile.correct {
-      animation: pop 0.35s ease forwards;
-      border-color: var(--success);
-    }
-
-    .tile.wrong {
-      animation: shake 0.35s ease forwards;
-      border-color: var(--danger);
-    }
+    .tile.correct { animation: pop   0.35s ease forwards; border-color: var(--green); }
+    .tile.wrong   { animation: shake 0.35s ease forwards; border-color: var(--red);   }
 
     @keyframes pop {
       0%   { transform: scale(1); }
-      50%  { transform: scale(1.18); }
+      50%  { transform: scale(1.2); }
       100% { transform: scale(1); }
     }
 
     @keyframes shake {
       0%, 100% { transform: translateX(0); }
-      25%       { transform: translateX(-6px); }
-      75%       { transform: translateX(6px); }
+      25%       { transform: translateX(-7px); }
+      75%       { transform: translateX(7px); }
     }
 
-    /* Overlay */
+    /* ── Overlay ── */
     #overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.78);
+      background: rgba(0,0,0,0.82);
       display: flex;
       align-items: center;
       justify-content: center;
       z-index: 10;
-      backdrop-filter: blur(6px);
+      backdrop-filter: blur(8px);
+      padding: 16px;
     }
 
     .card {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 40px 44px;
+      border-radius: 22px;
+      padding: 36px 40px 32px;
       text-align: center;
-      max-width: 340px;
+      max-width: 360px;
       width: 100%;
     }
 
+    /* squint logo in card */
+    .card-logo {
+      font-size: 2rem;
+      font-weight: 900;
+      letter-spacing: -0.05em;
+      background: linear-gradient(135deg, #a89cfd 0%, #7c6cfc 50%, #5a4de0 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 2px;
+    }
+
     .card h2 {
-      font-size: 1.75rem;
-      font-weight: 700;
+      font-size: 1.6rem;
+      font-weight: 800;
       letter-spacing: -0.02em;
     }
 
     .card .subtitle {
       color: var(--muted);
-      font-size: 0.9rem;
+      font-size: 0.875rem;
       margin-top: 8px;
-      line-height: 1.5;
+      line-height: 1.6;
     }
 
-    .card .final-score {
-      font-size: 3.5rem;
-      font-weight: 800;
+    /* How-to colour swatches */
+    .swatch-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin: 18px auto 4px;
+    }
+
+    .swatch {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+    }
+
+    .swatch.odd {
+      box-shadow: 0 0 0 2px var(--accent);
+    }
+
+    .swatch-hint {
+      font-size: 0.7rem;
+      color: var(--muted);
+      margin-top: 4px;
+      letter-spacing: 0.04em;
+    }
+
+    /* Score display */
+    .final-score {
+      font-size: 3.8rem;
+      font-weight: 900;
       color: var(--accent);
-      margin: 20px 0 4px;
-      letter-spacing: -0.04em;
+      margin: 16px 0 2px;
+      letter-spacing: -0.05em;
+      line-height: 1;
     }
 
-    .card .final-label {
-      font-size: 0.8rem;
+    .final-label {
+      font-size: 0.72rem;
       text-transform: uppercase;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.12em;
       color: var(--muted);
     }
 
-    .card .best-line {
-      margin-top: 12px;
-      font-size: 0.9rem;
-      color: #f9c74f;
+    .best-line {
+      margin-top: 10px;
+      font-size: 0.88rem;
+      color: var(--gold);
+      font-weight: 600;
     }
 
-    button {
-      margin-top: 28px;
+    /* Name input */
+    .name-section {
+      margin-top: 20px;
+    }
+
+    .name-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .name-input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 1rem;
+      padding: 11px 14px;
+      outline: none;
+      text-align: center;
+      font-family: inherit;
+      transition: border-color 0.2s;
+    }
+
+    .name-input:focus { border-color: var(--accent); }
+    .name-input::placeholder { color: var(--muted); }
+
+    /* Buttons */
+    .btn-primary {
+      display: block;
+      width: 100%;
+      margin-top: 20px;
       background: var(--accent);
       color: #fff;
       border: none;
-      border-radius: 10px;
-      padding: 13px 36px;
+      border-radius: 11px;
+      padding: 13px;
       font-size: 1rem;
-      font-weight: 600;
+      font-weight: 700;
       cursor: pointer;
       transition: opacity 0.15s, transform 0.1s;
+      font-family: inherit;
+    }
+
+    .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+
+    .btn-ghost {
+      display: block;
       width: 100%;
+      margin-top: 10px;
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      padding: 11px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+      font-family: inherit;
     }
 
-    button:hover {
-      opacity: 0.88;
-      transform: translateY(-1px);
+    .btn-ghost:hover { color: var(--text); border-color: var(--muted); }
+
+    /* ── Leaderboard card ── */
+    #view-leaderboard { display: none; }
+
+    .lb-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 6px;
     }
 
-    /* Feedback toast */
+    .lb-trophy { font-size: 1.4rem; }
+
+    .lb-your-score {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .lb-your-score span {
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .lb-list {
+      margin-top: 18px;
+      text-align: left;
+    }
+
+    .lb-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 6px;
+      border-radius: 8px;
+      transition: background 0.15s;
+    }
+
+    .lb-row + .lb-row {
+      border-top: 1px solid var(--border);
+      border-radius: 0;
+    }
+
+    .lb-row.you {
+      background: rgba(124,108,252,0.12);
+      border-top: none !important;
+      border-radius: 8px !important;
+      margin: 2px 0;
+    }
+
+    .lb-rank {
+      width: 28px;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+
+    .lb-name {
+      flex: 1;
+      font-size: 0.9rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .lb-score {
+      font-weight: 800;
+      font-size: 0.95rem;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .lb-empty {
+      color: var(--muted);
+      font-size: 0.9rem;
+      padding: 24px 0;
+    }
+
+    .lb-loading {
+      display: flex;
+      justify-content: center;
+      padding: 24px 0;
+    }
+
+    .spinner {
+      width: 20px; height: 20px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Toast ── */
     #toast {
       position: fixed;
-      top: 24px;
+      top: 20px;
       left: 50%;
       transform: translateX(-50%) translateY(-80px);
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 10px;
-      padding: 10px 22px;
-      font-size: 0.9rem;
-      font-weight: 600;
+      padding: 9px 20px;
+      font-size: 0.88rem;
+      font-weight: 700;
       transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
       z-index: 20;
       pointer-events: none;
     }
 
-    #toast.show {
-      transform: translateX(-50%) translateY(0);
-    }
-
-    #toast.correct { color: var(--success); }
-    #toast.wrong   { color: var(--danger); }
+    #toast.show   { transform: translateX(-50%) translateY(0); }
+    #toast.correct { color: var(--green); }
+    #toast.wrong   { color: var(--red); }
   </style>
 </head>
 <body>
 
 <header>
-  <h1>squint</h1>
-  <p>Find the tile that's a different colour</p>
+  <div class="wordmark">squint</div>
+  <p>can you see the difference?</p>
 </header>
 
 <div class="stats">
@@ -268,29 +458,66 @@
 </div>
 
 <div class="timer-wrap">
-  <div id="timer-bar" style="width:100%"></div>
+  <div id="timer-bar" style="width:100%; background: var(--accent)"></div>
 </div>
 
 <div id="grid"></div>
 
+<!-- ── Overlay ── -->
 <div id="overlay">
-  <div class="card" id="card">
-    <h2 id="card-title">squint</h2>
-    <p class="subtitle" id="card-subtitle">Tap the tile that's a slightly different colour.<br>It gets harder as you go.</p>
-    <div class="final-score" id="final-score" style="display:none"></div>
-    <div class="final-label" id="final-label" style="display:none">points</div>
-    <div class="best-line" id="best-line" style="display:none"></div>
-    <button id="btn">Play</button>
+
+  <!-- Start / Game Over card -->
+  <div class="card" id="view-main">
+    <!-- Start screen -->
+    <div id="phase-start">
+      <div class="card-logo">squint</div>
+      <p class="subtitle">Find the tile with a slightly different colour.<br>The gap gets smaller as you level up.</p>
+      <!-- Colour swatch demo -->
+      <div class="swatch-row" id="demo-swatches"></div>
+      <p class="swatch-hint">← spot the odd one out</p>
+      <button class="btn-primary" id="btn-play">Play</button>
+      <button class="btn-ghost" id="btn-view-lb">🏆 Leaderboard</button>
+    </div>
+
+    <!-- Game over screen -->
+    <div id="phase-gameover" style="display:none">
+      <h2>Game Over</h2>
+      <p class="subtitle" id="gameover-sub">You ran out of lives.</p>
+      <div class="final-score" id="final-score"></div>
+      <div class="final-label">points</div>
+      <div class="best-line" id="best-line"></div>
+      <div class="name-section">
+        <p class="name-label">Your name for the leaderboard</p>
+        <input class="name-input" id="name-input" type="text" placeholder="e.g. eagle-eye" maxlength="20" autocomplete="off" spellcheck="false" />
+      </div>
+      <button class="btn-primary" id="btn-submit">Submit Score</button>
+      <button class="btn-ghost" id="btn-skip">Skip →</button>
+    </div>
   </div>
+
+  <!-- Leaderboard card -->
+  <div class="card" id="view-leaderboard">
+    <div class="lb-header">
+      <span class="lb-trophy">🏆</span>
+      <h2>Leaderboard</h2>
+    </div>
+    <p class="lb-your-score" id="lb-your-score"></p>
+    <div class="lb-list" id="lb-list">
+      <div class="lb-loading"><div class="spinner"></div></div>
+    </div>
+    <button class="btn-primary" id="btn-play-again">Play Again</button>
+    <button class="btn-ghost" id="btn-back-start">Back to Start</button>
+  </div>
+
 </div>
 
 <div id="toast"></div>
 
 <script>
-  // ─── State ───────────────────────────────────────────────────────────────────
+  // ─── State ────────────────────────────────────────────────────────────────────
   const state = {
     score: 0,
-    best: parseInt(localStorage.getItem("squint_best") || "0"),
+    best: parseInt(localStorage.getItem('squint_best') || '0'),
     lives: 3,
     level: 1,
     answer: -1,
@@ -300,23 +527,45 @@
     timerDuration: 7000,
   };
 
-  // ─── DOM refs ────────────────────────────────────────────────────────────────
-  const $grid       = document.getElementById("grid");
-  const $overlay    = document.getElementById("overlay");
-  const $btn        = document.getElementById("btn");
-  const $toast      = document.getElementById("toast");
-  const $bar        = document.getElementById("timer-bar");
-  const $cardTitle  = document.getElementById("card-title");
-  const $cardSub    = document.getElementById("card-subtitle");
+  let lastScore = 0;
 
-  const $score      = document.getElementById("score-value");
-  const $best       = document.getElementById("best-value");
-  const $lives      = document.getElementById("lives-value");
-  const $level      = document.getElementById("level-value");
+  // ─── DOM refs ─────────────────────────────────────────────────────────────────
+  const $overlay       = document.getElementById('overlay');
+  const $grid          = document.getElementById('grid');
+  const $bar           = document.getElementById('timer-bar');
+  const $toast         = document.getElementById('toast');
 
-  const $finalScore = document.getElementById("final-score");
-  const $finalLabel = document.getElementById("final-label");
-  const $bestLine   = document.getElementById("best-line");
+  const $score         = document.getElementById('score-value');
+  const $best          = document.getElementById('best-value');
+  const $lives         = document.getElementById('lives-value');
+  const $level         = document.getElementById('level-value');
+
+  const $viewMain      = document.getElementById('view-main');
+  const $viewLB        = document.getElementById('view-leaderboard');
+  const $phaseStart    = document.getElementById('phase-start');
+  const $phaseGameover = document.getElementById('phase-gameover');
+
+  const $finalScore    = document.getElementById('final-score');
+  const $bestLine      = document.getElementById('best-line');
+  const $nameInput     = document.getElementById('name-input');
+  const $lbList        = document.getElementById('lb-list');
+  const $lbYourScore   = document.getElementById('lb-your-score');
+
+  // ─── Demo swatches on start screen ───────────────────────────────────────────
+  (function buildDemo() {
+    const base = { r: 100, g: 130, b: 200 };
+    const odd  = { r: 130, g: 130, b: 200 };
+    const positions = [0,1,2,3,4,5,6,7,8];
+    const oddIdx = 5;
+    const wrap = document.getElementById('demo-swatches');
+    positions.forEach(i => {
+      const d = document.createElement('div');
+      d.className = 'swatch' + (i === oddIdx ? ' odd' : '');
+      const c = i === oddIdx ? odd : base;
+      d.style.background = `rgb(${c.r},${c.g},${c.b})`;
+      wrap.appendChild(d);
+    });
+  })();
 
   // ─── Level config ─────────────────────────────────────────────────────────────
   function levelConfig(level) {
@@ -329,95 +578,62 @@
       { gridSize: 5, delta: 22 },
       { gridSize: 5, delta: 16 },
       { gridSize: 5, delta: 12 },
-      { gridSize: 6, delta: 9  },
-      { gridSize: 6, delta: 6  },
+      { gridSize: 6, delta: 9 },
+      { gridSize: 6, delta: 6 },
     ];
     return configs[Math.min(level - 1, configs.length - 1)];
   }
 
-  // ─── Colour helpers ──────────────────────────────────────────────────────────
-  function rand(lo, hi) {
-    return Math.floor(Math.random() * (hi - lo + 1)) + lo;
-  }
-
-  function clamp(v) {
-    return Math.max(0, Math.min(255, v));
-  }
-
-  function toRgb(r, g, b) {
-    return `rgb(${r},${g},${b})`;
-  }
+  // ─── Colour helpers ───────────────────────────────────────────────────────────
+  function rand(lo, hi) { return Math.floor(Math.random() * (hi - lo + 1)) + lo; }
+  function clamp(v)     { return Math.max(0, Math.min(255, v)); }
+  function toRgb(r,g,b) { return `rgb(${r},${g},${b})`; }
 
   function generateRound(level) {
     const cfg = levelConfig(level);
     const n = cfg.gridSize * cfg.gridSize;
-
-    const base = {
-      r: rand(40, 215),
-      g: rand(40, 215),
-      b: rand(40, 215),
-    };
-
-    const channels = ["r", "g", "b"];
-    const ch = channels[rand(0, 2)];
+    const base = { r: rand(40,215), g: rand(40,215), b: rand(40,215) };
+    const ch  = ['r','g','b'][rand(0,2)];
     const dir = Math.random() < 0.5 ? 1 : -1;
-
     const odd = { ...base };
     odd[ch] = clamp(base[ch] + dir * (Math.floor(cfg.delta * 0.55) + rand(0, Math.floor(cfg.delta * 0.45))));
-
     const answer = rand(0, n - 1);
-
     const colors = Array.from({ length: n }, (_, i) =>
-      i === answer
-        ? toRgb(odd.r, odd.g, odd.b)
-        : toRgb(base.r, base.g, base.b)
+      i === answer ? toRgb(odd.r, odd.g, odd.b) : toRgb(base.r, base.g, base.b)
     );
-
     return { colors, answer, gridSize: cfg.gridSize };
   }
 
-  // ─── Timer ───────────────────────────────────────────────────────────────────
+  // ─── Timer ────────────────────────────────────────────────────────────────────
   function startTimer() {
     clearInterval(state.timerInterval);
     state.timerPct = 100;
-    $bar.style.width = "100%";
-    $bar.style.background = "var(--accent)";
-
+    $bar.style.width = '100%';
+    $bar.style.background = 'var(--accent)';
     const steps = 100;
     const stepMs = state.timerDuration / steps;
     let step = 0;
-
     state.timerInterval = setInterval(() => {
       step++;
       state.timerPct = 100 - (step / steps) * 100;
-      $bar.style.width = state.timerPct + "%";
-
-      if (state.timerPct < 30) {
-        $bar.style.background = "var(--danger)";
-      } else if (state.timerPct < 60) {
-        $bar.style.background = "#f9c74f";
-      } else {
-        $bar.style.background = "var(--accent)";
-      }
-
-      if (step >= steps) {
-        clearInterval(state.timerInterval);
-        onTimeout();
-      }
+      $bar.style.width = state.timerPct + '%';
+      $bar.style.background = state.timerPct < 30
+        ? 'var(--red)'
+        : state.timerPct < 60
+          ? 'var(--gold)'
+          : 'var(--accent)';
+      if (step >= steps) { clearInterval(state.timerInterval); onTimeout(); }
     }, stepMs);
   }
 
-  function stopTimer() {
-    clearInterval(state.timerInterval);
-  }
+  function stopTimer() { clearInterval(state.timerInterval); }
 
   function onTimeout() {
     if (state.locked) return;
     state.locked = true;
     loseLife();
-    showToast("Time's up!", "wrong");
-    const tiles = $grid.querySelectorAll(".tile");
-    tiles[state.answer].classList.add("correct");
+    showToast("Time's up!", 'wrong');
+    $grid.querySelectorAll('.tile')[state.answer].classList.add('correct');
     setTimeout(nextRound, 900);
   }
 
@@ -425,29 +641,29 @@
   function loseLife() {
     state.lives = Math.max(0, state.lives - 1);
     updateStats();
-    if (state.lives === 0) {
-      setTimeout(gameOver, 500);
-    }
+    if (state.lives === 0) setTimeout(gameOver, 500);
   }
 
   function gameOver() {
     stopTimer();
+    lastScore = state.score;
     if (state.score > state.best) {
       state.best = state.score;
-      localStorage.setItem("squint_best", state.best);
+      localStorage.setItem('squint_best', state.best);
     }
 
-    $cardTitle.textContent = "Game Over";
-    $cardSub.textContent = "You ran out of lives.";
-    $finalScore.style.display = "";
     $finalScore.textContent = String(state.score);
-    $finalLabel.style.display = "";
-    $bestLine.style.display = "";
-    $bestLine.textContent = state.score >= state.best
-      ? "New best score! \uD83C\uDF89"
-      : `Best: ${state.best}`;
-    $btn.textContent = "Play Again";
-    $overlay.style.display = "flex";
+    $bestLine.textContent = state.score > 0 && state.score >= state.best
+      ? '🎉 New personal best!'
+      : `Personal best: ${state.best}`;
+
+    $phaseStart.style.display    = 'none';
+    $phaseGameover.style.display = '';
+    $viewMain.style.display      = '';
+    $viewLB.style.display        = 'none';
+    $nameInput.value = '';
+    $overlay.style.display = 'flex';
+    setTimeout(() => $nameInput.focus(), 100);
   }
 
   function startGame() {
@@ -457,24 +673,21 @@
     state.locked = false;
     state.timerDuration = 7000;
     updateStats();
-    $overlay.style.display = "none";
+    $overlay.style.display = 'none';
     nextRound();
   }
 
   function nextRound() {
     if (state.lives <= 0) return;
     state.locked = false;
-
     const newLevel = Math.floor(state.score / 5) + 1;
     if (newLevel !== state.level) {
       state.level = newLevel;
       state.timerDuration = Math.max(3000, 7000 - (state.level - 1) * 300);
-      showToast(`Level ${state.level}!`, "correct");
+      showToast(`Level ${state.level}!`, 'correct');
     }
-
     const { colors, answer, gridSize } = generateRound(state.level);
     state.answer = answer;
-
     renderGrid(colors, gridSize);
     updateStats();
     startTimer();
@@ -486,19 +699,12 @@
       Math.floor((Math.min(window.innerWidth, 500) - 40) / gridSize) - 8,
       90
     );
-
-    // Clear grid using safe DOM method
-    while ($grid.firstChild) {
-      $grid.removeChild($grid.firstChild);
-    }
-
+    while ($grid.firstChild) $grid.removeChild($grid.firstChild);
     colors.forEach((color, i) => {
-      const tile = document.createElement("div");
-      tile.className = "tile";
-      tile.style.width = tileSize + "px";
-      tile.style.height = tileSize + "px";
-      tile.style.background = color;
-      tile.addEventListener("click", () => onTileClick(i));
+      const tile = document.createElement('div');
+      tile.className = 'tile';
+      tile.style.cssText = `width:${tileSize}px;height:${tileSize}px;background:${color}`;
+      tile.addEventListener('click', () => onTileClick(i));
       $grid.appendChild(tile);
     });
   }
@@ -507,38 +713,127 @@
     if (state.locked) return;
     state.locked = true;
     stopTimer();
-
-    const tiles = $grid.querySelectorAll(".tile");
-
+    const tiles = $grid.querySelectorAll('.tile');
     if (index === state.answer) {
-      tiles[index].classList.add("correct");
-      const pct = state.timerPct / 100;
-      const points = Math.max(1, Math.round(pct * state.level * 10));
-      state.score += points;
+      tiles[index].classList.add('correct');
+      const pts = Math.max(1, Math.round((state.timerPct / 100) * state.level * 10));
+      state.score += pts;
       if (state.score > state.best) {
         state.best = state.score;
-        localStorage.setItem("squint_best", state.best);
+        localStorage.setItem('squint_best', state.best);
       }
-      showToast(`+${points}`, "correct");
+      showToast(`+${pts}`, 'correct');
     } else {
-      tiles[index].classList.add("wrong");
-      tiles[state.answer].classList.add("correct");
+      tiles[index].classList.add('wrong');
+      tiles[state.answer].classList.add('correct');
       loseLife();
-      showToast("Wrong!", "wrong");
+      showToast('Wrong!', 'wrong');
     }
-
     updateStats();
     setTimeout(nextRound, 850);
   }
 
-  // ─── UI helpers ──────────────────────────────────────────────────────────────
+  // ─── Leaderboard API ──────────────────────────────────────────────────────────
+  async function postScore(name, score) {
+    try {
+      await fetch('/api/leaderboard', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, score }),
+      });
+    } catch (e) { /* silently fail — don't block UI */ }
+  }
+
+  async function fetchScores() {
+    const res = await fetch('/api/leaderboard');
+    if (!res.ok) throw new Error('fetch failed');
+    return res.json();
+  }
+
+  function escHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function renderLB(scores, yourScore) {
+    if (!scores || !scores.length) {
+      $lbList.innerHTML = '<p class="lb-empty">No scores yet — be the first!</p>';
+      return;
+    }
+    const medals = ['🥇','🥈','🥉'];
+    $lbList.innerHTML = scores.map((e, i) => {
+      const isYou = yourScore !== null && e.score === yourScore;
+      return `<div class="lb-row${isYou ? ' you' : ''}">
+        <span class="lb-rank">${medals[i] || (i+1)}</span>
+        <span class="lb-name">${escHtml(e.name)}${isYou ? ' <span style="color:var(--accent);font-size:0.75rem">(you)</span>' : ''}</span>
+        <span class="lb-score">${e.score}</span>
+      </div>`;
+    }).join('');
+  }
+
+  async function showLeaderboard(yourScore) {
+    $viewMain.style.display  = 'none';
+    $viewLB.style.display    = '';
+    $lbList.innerHTML = '<div class="lb-loading"><div class="spinner"></div></div>';
+
+    if (yourScore !== null) {
+      $lbYourScore.innerHTML = `Your score: <span>${yourScore}</span>`;
+    } else {
+      $lbYourScore.textContent = '';
+    }
+
+    try {
+      const scores = await fetchScores();
+      renderLB(scores, yourScore);
+    } catch {
+      $lbList.innerHTML = '<p class="lb-empty">Couldn\'t load scores right now.</p>';
+    }
+  }
+
+  // ─── Button handlers ──────────────────────────────────────────────────────────
+  document.getElementById('btn-play').addEventListener('click', startGame);
+
+  document.getElementById('btn-view-lb').addEventListener('click', () => {
+    showLeaderboard(null);
+  });
+
+  document.getElementById('btn-submit').addEventListener('click', async () => {
+    const name = $nameInput.value.trim() || 'Anonymous';
+    await postScore(name, lastScore);
+    showLeaderboard(lastScore);
+  });
+
+  document.getElementById('btn-skip').addEventListener('click', () => {
+    showLeaderboard(lastScore);
+  });
+
+  document.getElementById('btn-play-again').addEventListener('click', () => {
+    $viewLB.style.display    = 'none';
+    $viewMain.style.display  = '';
+    $phaseStart.style.display    = 'none';
+    $phaseGameover.style.display = '';
+    // go straight to game over → play again flow: just start
+    startGame();
+  });
+
+  document.getElementById('btn-back-start').addEventListener('click', () => {
+    $viewLB.style.display        = 'none';
+    $viewMain.style.display      = '';
+    $phaseGameover.style.display = 'none';
+    $phaseStart.style.display    = '';
+  });
+
+  // Submit on Enter in name field
+  $nameInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('btn-submit').click();
+  });
+
+  // ─── UI helpers ───────────────────────────────────────────────────────────────
   function updateStats() {
     $score.textContent = String(state.score);
     $best.textContent  = String(state.best);
     $level.textContent = String(state.level);
-
-    const hearts = ["", "\u2764\uFE0F", "\u2764\uFE0F\u2764\uFE0F", "\u2764\uFE0F\u2764\uFE0F\u2764\uFE0F"];
-    $lives.textContent = hearts[state.lives] || "\uD83D\uDC80";
+    const hearts = ['','❤️','❤️❤️','❤️❤️❤️'];
+    $lives.textContent = hearts[state.lives] || '💀';
   }
 
   let toastTimer;
@@ -546,12 +841,11 @@
     $toast.textContent = msg;
     $toast.className = `show ${type}`;
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => { $toast.className = ""; }, 1200);
+    toastTimer = setTimeout(() => { $toast.className = ''; }, 1200);
   }
 
-  // ─── Init ────────────────────────────────────────────────────────────────────
+  // ─── Init ─────────────────────────────────────────────────────────────────────
   updateStats();
-  $btn.addEventListener("click", startGame);
 </script>
 </body>
 </html>
